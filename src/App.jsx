@@ -1,9 +1,9 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getVoteText } from '@/utils/helpers';
-import Rated from '@/assets/Star_fill.svg';
-import NoRated from '@/assets/Star.svg';
+import { Button, List } from './components';
 
 function App() {
+  const [tab, setTab] = useState(1);
   const { data, isLoading } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
@@ -16,50 +16,36 @@ function App() {
   });
 
   return (
-    <main>
-      <h2>Our Collection</h2>
-      <p>
-        Introducing our Coffee Collection, a selection of unique coffees from
-        different roast types and origins, expertly roasted in small batches and
-        shipped fresh weekly.
-      </p>
-      <nav>
-        <button type="button">All Products</button>
-        <button type="button">Available Now</button>
-        <section>
-          {isLoading ? (
-            <p>Loading...</p>
-          ) : (
-            data.map((product) => (
-              <article key={product.id}>
-                <div>
-                  {product.popular && <span>Popular</span>}
-                  <img src={product.image} alt={product.name} />
-                </div>
-                <div>
-                  <p>{product.name}</p>
-                  <p>{product.price}</p>
-                </div>
-                <div>
-                  {product.rating ? (
-                    <div>
-                      <img src={Rated} alt="" aria-hidden="true" />
-                      <span>{product.rating}</span>
-                      <span>({getVoteText(product.votes)})</span>
-                    </div>
-                  ) : (
-                    <div>
-                      <img src={NoRated} alt="" aria-hidden="true" />
-                      <span>No rating</span>
-                    </div>
-                  )}
-                  {!product.available && <p>Sold out</p>}
-                </div>
-              </article>
-            ))
-          )}
-        </section>
-      </nav>
+    <main className="relative bg-black-soft px-5 py-20 font-sans text-gray-muted">
+      <section className="space-y-5 rounded-xl bg-charcoal p-10">
+        <div className="space-y-2">
+          <h2 className="text-center text-3xl font-bold text-cream">
+            Our Collection
+          </h2>
+          <p className="text-center text-sm font-medium text-gray-muted">
+            Introducing our Coffee Collection, a selection of unique coffees
+            from different roast types and origins, expertly roasted in small
+            batches and shipped fresh weekly.
+          </p>
+        </div>
+        <nav className="flex items-center justify-center gap-3">
+          <Button isActive={tab === 1} onClick={() => setTab(1)}>
+            All Products
+          </Button>
+          <Button isActive={tab === 2} onClick={() => setTab(2)}>
+            Available Now
+          </Button>
+        </nav>
+        {isLoading ? (
+          <p className="text-center">Loading</p>
+        ) : (
+          <List
+            products={
+              tab === 1 ? data : data.filter((product) => product.available)
+            }
+          />
+        )}
+      </section>
     </main>
   );
 }
